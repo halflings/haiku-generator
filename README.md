@@ -1,0 +1,4 @@
+haiku-generator
+===============
+
+Study project
