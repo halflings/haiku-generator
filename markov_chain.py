@@ -2,6 +2,13 @@ import json
 import nltk
 import itertools
 import random
+import hyphen
+
+# Constants
+HAIKU_LINES = 3
+HAIKU_SYLLABLES = [5, 7, 5]
+
+hyphenator = hyphen.Hyphenator('en_US')
 
 def parse_dataset():
     """
@@ -35,7 +42,6 @@ def build_tagged_corpus(dataset):
     # return corpus
 
 
-# # SOLUTION 2: N-GRAM BASED
 def compute_bigrams(dataset):
     """
     Return a list of bigrams (list of 2 words according to the haiku word order)
@@ -43,6 +49,7 @@ def compute_bigrams(dataset):
     probability. So that, a third word can easily be generated based on the two
     previous ones
     """
+    # TODO: remove punctuaton and apostrophes (and possessive ? => 's)
     tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+|[^\w\s]+')
 
     return list(itertools.chain(*[list(nltk.ngrams(tokenizer.tokenize(haiku), 2)) for key in dataset.keys() for haiku in dataset[key]]))
@@ -68,17 +75,62 @@ def build_bigrams_dictionary(bigrams):
     return dictionary
 
 
+def count_syllables(word):
+    syllables = len(hyphenator.syllables(word))
+    if syllables == 0:
+        return 1
+    return syllables
+
+
 def generate_haiku(bigrams_dict):
-    word = bigrams_dict.keys()[random.randint(0, len(bigrams_dict.keys()) - 1)]
-    haiku = []
+    haiku = ''
 
-    # Do a while checking syllabus
-    for i in xrange(10):
-        haiku.append(word)
-        word = random.choice(bigrams_dict[word])
+    # Start with a random word
+    words = [bigrams_dict.keys()[random.randint(0, len(bigrams_dict.keys()) - 1)]]
 
-    haiku.append(word)
-    return ' '.join(haiku)
+    # Generate each line
+    for i in range(HAIKU_LINES):
+        remaining_syllables = HAIKU_SYLLABLES[i]
+
+        # Append word until the syllable number has been reached
+        while remaining_syllables > 0:
+            random.shuffle(words)
+
+            # Count the number of syllables for each successor
+            for word in words:
+                tmpSyllables = count_syllables(word)
+
+                # If a word has the perfect number of syllables to complete the
+                # line, we select it
+                if tmpSyllables == remaining_syllables:
+                    remaining_syllables = 0
+                    haiku += word + ' '
+                    break
+                # Remove word which have too many syllables
+                elif tmpSyllables > remaining_syllables:
+                    words.remove(word)
+
+            # Pick a word randomly if we could not find a proper word
+            # to end the line
+            if remaining_syllables != 0:
+                word = random.choice(words)
+                remaining_syllables -= count_syllables(word)
+                haiku += word + ' '
+                try:
+                    words = bigrams_dict[word]
+                except:
+                    # No successor for the selected word
+                    raise NotImplementedError()
+
+            # Line cannot be ended with the right number of syllables
+            elif len(words) == 0:
+                raise NotImplementedError()
+
+
+        # End of line
+        haiku += '\r\n'
+
+    return haiku
 
 
 if __name__ == '__main__':
@@ -88,6 +140,6 @@ if __name__ == '__main__':
     print "{} bigrams generated".format(len(bigrams))
 
     bigrams_dict = build_bigrams_dictionary(bigrams)
-    print "bigrams dictionary contains {} entries".format(len(bigrams_dict.keys()))
+    print "bigrams dictionary contains {} entries\n".format(len(bigrams_dict.keys()))
 
     print generate_haiku(bigrams_dict)
