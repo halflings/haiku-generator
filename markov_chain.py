@@ -80,6 +80,11 @@ def generate_haiku(bigrams_dict):
                 if tmpSyllables == remaining_syllables:
                     remaining_syllables = 0
                     haiku += word + ' '
+                    try:
+                        words = bigrams_dict[word]
+                    except:
+                        # No successor for the selected word
+                        raise NotImplementedError()
                     break
                 # Remove word which have too many syllables
                 elif tmpSyllables > remaining_syllables:
