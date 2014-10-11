@@ -1,13 +1,12 @@
-import json
 import nltk
 
 class POSTagger:
     @staticmethod
-    def get_pos_tagged_dataset(haiku_file='haikus.json'):
+    def get_pos_tagged_dataset(dataset):
         """
         Return a dictionary of list of tagged haikus (a haiku is here a list of tagged words)
         """
-        return POSTagger.__build_tagged_dataset(POSTagger.__parse_dataset(haiku_file))
+        return POSTagger.__build_tagged_dataset(dataset)
 
     @staticmethod
     def get_tagged_word_tree(pos_tagged_dataset):
@@ -18,18 +17,6 @@ class POSTagger:
                      ordered by descending probability
         """
         return POSTagger.__build_tagged_word_tree(pos_tagged_dataset)
-
-    @staticmethod
-    def __parse_dataset(haiku_file):
-        """
-        Return the dataset as a dictionary
-        """
-        print "Parsing dataset..."
-        json_data = open(haiku_file)
-        dataset = json.load(json_data)
-        json_data.close()
-
-        return dataset
 
     @staticmethod
     def __build_tagged_dataset(dataset):
@@ -78,9 +65,3 @@ class POSTagger:
             word_tree[key] = map(lambda (word, n): (word, float(n)/sum_words), sorted_words)
 
         return word_tree
-
-
-if __name__ == '__main__':
-    tagged_dataset = POSTagger.get_pos_tagged_dataset('haikus_sample.json')
-    tagged_word_tree = POSTagger.get_tagged_word_tree(tagged_dataset)
-    print tagged_word_tree
