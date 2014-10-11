@@ -37,7 +37,7 @@ def compute_bigrams(dataset):
 def build_bigrams_dictionary(bigrams):
     """
     Return a dictionary:
-    - key: tuple of two consecutive words from the corpus
+    - key: word from the corpus
     - value: list of independant words following the key in the corpus
     Note: the value list does not contain unique words, so that we can
     randomly pick a word according to the probability distribution
