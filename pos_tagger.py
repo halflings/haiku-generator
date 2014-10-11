@@ -4,7 +4,20 @@ import nltk
 class POSTagger:
     @staticmethod
     def get_pos_tagged_dataset(haiku_file='haikus.json'):
-        return POSTagger.__build_tagged_corpus(POSTagger.__parse_dataset(haiku_file))
+        """
+        Return a dictionary of list of tagged haikus (a haiku is here a list of tagged words)
+        """
+        return POSTagger.__build_tagged_dataset(POSTagger.__parse_dataset(haiku_file))
+
+    @staticmethod
+    def get_tagged_word_tree(pos_tagged_dataset):
+        """
+        Return a dictionary:
+        - key: tag
+        - value: list of (word, probability) following the key in the corpus
+                     ordered by descending probability
+        """
+        return POSTagger.__build_tagged_word_tree(pos_tagged_dataset)
 
     @staticmethod
     def __parse_dataset(haiku_file):
@@ -19,7 +32,7 @@ class POSTagger:
         return dataset
 
     @staticmethod
-    def __build_tagged_corpus(dataset):
+    def __build_tagged_dataset(dataset):
         """
         Return a dictionary of list of tagged haikus
         """
@@ -42,6 +55,32 @@ class POSTagger:
 
         return tagged_dataset
 
+    @staticmethod
+    def __build_tagged_word_tree(dataset):
+        word_tree = {}
+
+        # Build dictionary
+        for key in dataset.keys():
+            for haiku in dataset[key]:
+                for word, tag in haiku:
+                    if not tag in word_tree:
+                        word_tree[tag] = {}
+
+                    if word in word_tree[tag]:
+                        word_tree[tag][word] = word_tree[tag][word] + 1
+                    else:
+                        word_tree[tag][word] = 1
+
+        # Calculate probabilities
+        for key in word_tree:
+            sorted_words = sorted(word_tree[key].items(), key=lambda tuple: tuple[1], reverse=True)
+            sum_words = sum(n for (word, n) in sorted_words)
+            word_tree[key] = map(lambda (word, n): (word, float(n)/sum_words), sorted_words)
+
+        return word_tree
+
 
 if __name__ == '__main__':
-    print POSTagger.get_pos_tagged_dataset()
+    tagged_dataset = POSTagger.get_pos_tagged_dataset('haikus_sample.json')
+    tagged_word_tree = POSTagger.get_tagged_word_tree(tagged_dataset)
+    print tagged_word_tree
