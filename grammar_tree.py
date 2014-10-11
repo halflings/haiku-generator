@@ -1,10 +1,35 @@
 import nltk
+import random
 import itertools
 from collections import Counter
 
 class GrammarTree:
     def __init__(self, tagged_dataset):
-        self.root, self._grammar_tree = self.__get_grammar_tree(tagged_dataset)
+        self._root, self._grammar_tree = self.__get_grammar_tree(tagged_dataset)
+
+    def generate_haiku(self, word_tree):
+        # TODO: Implement syllables constraint
+        tag = GrammarTree.__random_pick(self._root)
+        word = GrammarTree.__random_pick(word_tree[tag])
+
+        haiku = []
+        for i in xrange(10):
+            haiku.append(word)
+            tag = GrammarTree.__random_pick(self._grammar_tree[tag])
+            word = GrammarTree.__random_pick(word_tree[tag])
+
+        haiku.append(word)
+        return ' '.join(haiku)
+
+    @staticmethod
+    def __random_pick(plist):
+        summed = 0
+        r = random.random()
+        for (e, p) in plist:
+            summed += p
+            if summed >= r:
+                return e
+        return plist[-1][0]
 
     def __get_grammar_tree(self, tagged_dataset):
         """

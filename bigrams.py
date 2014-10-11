@@ -13,11 +13,14 @@ class Bigrams:
         self._bigrams_dict = self.__build__bigrams_dictionary(self.__compute_bigrams(dataset))
 
     def generate_haiku(self, syllables=True):
+        """
+        If syllables is true, the haiku returned will be divided in 3 lines
+        and will respect the syllables constraint
+        """
         if not syllables:
             word = self._bigrams_dict.keys()[random.randint(0, len(self._bigrams_dict.keys()) - 1)]
             haiku = []
 
-            # Do a while checking syllabus
             for i in xrange(10):
                 haiku.append(word)
                 word = random.choice(self._bigrams_dict[word])

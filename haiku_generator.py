@@ -8,6 +8,7 @@ class HaikuGenerator:
         self._dataset = HaikuGenerator.__parse_dataset(haikus_file)
         self._tagged_dataset = None
         self._bigrams = None
+        # Tagged word tree
         self._word_tree = None
         self._grammar_tree = None
 
@@ -24,7 +25,7 @@ class HaikuGenerator:
         if not self._tagged_dataset:
             self._tagged_dataset = POSTagger.get_pos_tagged_dataset(self._dataset)
         if not self._word_tree:
-            self._word_tree = POSTagger.get_tagged_word_tree()
+            self._word_tree = POSTagger.get_tagged_word_tree(self._tagged_dataset)
         if not self._grammar_tree:
             self._grammar_tree = GrammarTree(self._tagged_dataset)
 
@@ -47,3 +48,4 @@ if __name__ == '__main__':
     generator = HaikuGenerator()
     print generator.generate_bigrams(True)
     print
+    print generator.generate_grammar_tree()
