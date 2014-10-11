@@ -21,27 +21,6 @@ def parse_dataset():
     return dataset
 
 
-def build_tagged_corpus(dataset):
-    """
-    Return a list of list of tagged word
-    """
-    # The following code allows the sentence tokenization of a text (useless here)
-    # sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
-    # sentences = sent_detector.tokenize(dataset['SUMMER Terrestrial'][0].strip()))
-
-    return [nltk.pos_tag(nltk.word_tokenize(haiku)) for key in dataset.keys() for haiku in dataset[key]]
-
-    # Can also be done using the following instructions
-    # corpus = []
-    # for key in dataset.keys():
-    #     for haiku in dataset[key]:
-    #         words = nltk.word_tokenize(haiku)
-    #         tagged_words = nltk.pos_tag(words)
-    #         corpus.append(tagged_words)
-
-    # return corpus
-
-
 def compute_bigrams(dataset):
     """
     Return a list of bigrams (list of 2 words according to the haiku word order)
