@@ -20,7 +20,6 @@ def parse_dataset():
 
     return dataset
 
-
 def compute_bigrams(dataset):
     """
     Return a list of bigrams (list of 2 words according to the haiku word order)
@@ -28,11 +27,10 @@ def compute_bigrams(dataset):
     probability. So that, a third word can easily be generated based on the two
     previous ones
     """
-    # TODO: remove punctuaton and apostrophes (and possessive ? => 's)
-    tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+|[^\w\s]+')
+    # TODO: get rid of possesive form
+    tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')
 
     return list(itertools.chain(*[list(nltk.ngrams(tokenizer.tokenize(haiku), 2)) for key in dataset.keys() for haiku in dataset[key]]))
-
 
 def build_bigrams_dictionary(bigrams):
     """
@@ -53,13 +51,11 @@ def build_bigrams_dictionary(bigrams):
 
     return dictionary
 
-
 def count_syllables(word):
     syllables = len(hyphenator.syllables(word))
     if syllables == 0:
         return 1
     return syllables
-
 
 def generate_haiku(bigrams_dict):
     haiku = ''

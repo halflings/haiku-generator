@@ -1,15 +1,27 @@
 import nltk
 import itertools
+from collections import Counter
 
 from pos_tagger import POSTagger
-
 
 class GrammarTree:
     @staticmethod
     def get_grammar_tree(haiku_file='haikus.json'):
+        """
+        Return a tuple containing the root probability and the grammar tree
+        - root probability: list of (tag, probability) ordered by descending probability
+        - grammar tree: dictionary
+            - key: tag
+            - value: list of (tag, probability) following the key in the corpus
+                     ordered by descending probability
+        """
         tagged_dataset = POSTagger.get_pos_tagged_dataset(haiku_file)
+
         print "Building grammar tree..."
-        return GrammarTree.__build_bigrams_dictionary(GrammarTree.__compute_bigrams(tagged_dataset))
+        root = GrammarTree.__build_root_probability(tagged_dataset)
+        gt = GrammarTree.__build_bigrams_dictionary(GrammarTree.__compute_bigrams(tagged_dataset))
+
+        return root, gt
 
     @staticmethod
     def __compute_bigrams(tagged_dataset):
@@ -48,7 +60,15 @@ class GrammarTree:
 
         return dictionary
 
+    @staticmethod
+    def __build_root_probability(tagged_dataset):
+        counter = Counter([haiku[0][1] for key in tagged_dataset.keys() for haiku in tagged_dataset[key]])
+        sorted_tags = sorted(counter.items(), key=lambda tuple: tuple[1], reverse=True)
+        sum_tags = sum(counter.values())
+        return map(lambda (tag, n): (tag, float(n)/sum_tags), sorted_tags)
 
 
 if __name__ == '__main__':
-    gt = GrammarTree.get_grammar_tree()
+    root, gt = GrammarTree.get_grammar_tree('haikus.json')
+    print root
+    print gt

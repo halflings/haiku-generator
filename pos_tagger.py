@@ -27,14 +27,15 @@ class POSTagger:
         # sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
         # sentences = sent_detector.tokenize(dataset['SUMMER Terrestrial'][0].strip()))
         print "POS-tagging dataset..."
+        tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')
 
         # Feel free to transform it into a one-liner (if doable)
         tagged_dataset = {}
         for key in dataset.keys():
             tagged_haikus = []
             for haiku in dataset[key]:
-                words = nltk.word_tokenize(haiku)
-                # TODO: remove punctuaton and apostrophes (and possessive ? => 's)
+                # TODO: get rid of possesive form
+                words = tokenizer.tokenize(haiku)
                 tagged_words = nltk.pos_tag(words)
                 tagged_haikus.append(tagged_words)
             tagged_dataset[key] = tagged_haikus
