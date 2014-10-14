@@ -1,6 +1,7 @@
 import csv
 import random
 import nltk
+from nltk.corpus import wordnet as wn # used for pos-tagging only
 
 class WAN:
 
@@ -9,17 +10,26 @@ class WAN:
 		f.readline() # skip first line, the header line
 		r = csv.reader(f)
 		assoc = {}
-		for n in r: # probably worse pos_tagging since we're out of context
-			if assoc.has_key(n[0]):
-				assoc[n[0]] = assoc[n[0]] + [n[1]] #nltk.pos_tag([n[1]])
+		for n in r:
+			key = n[0].lower().strip()
+			value = n[1].lower().strip()
+			if assoc.has_key(key):
+				assoc[key] = assoc[key] + [value	]
 			else:
-				assoc[n[0]] = [n[1]] # nltk.pos_tag([n[1]])
-			#print(assoc[n[0]])
+				assoc[key] = [value]
 		self._assoc = assoc
+		self._POSmap = {'NN':'n','VB':'v','JJ':'a','RB':'r'}
 
 	# returns a random word that has at least one association
 	def random_word(self,POStag='NN'):
-		return self._assoc.keys()[int(random.random()*len(self._assoc.keys()))]
+		while True:
+			word = self._assoc.keys()[int(random.random()*len(self._assoc.keys()))]
+			if self.__has_POS_tag(word,POStag):
+				return word
+
+	
+	def __has_POS_tag(self,word, POStag):
+		return len([synset for synset in wn.synsets(word) if synset.pos() == self._POSmap[POStag]]) > 0
 
 
 	# returns None if no associations could be found
@@ -27,7 +37,7 @@ class WAN:
 		if self._assoc.has_key(word) == False:
 			return None
 		else:
-			candidates = [a for a in self._assoc[word]]
+			candidates = [a for a in self._assoc[word] if self.__has_POS_tag(a,POStag)]
 			if len(candidates) == 0:
 				return None
 			else: # return random associated word
@@ -36,5 +46,5 @@ class WAN:
 
 if __name__ == '__main__':
 	wan = WAN()
-	seed = 'NATURE'
-	print(seed,wan.associate(seed))
+	seed = 'cold'
+	print(seed,wan.associate(seed,'VB'))
