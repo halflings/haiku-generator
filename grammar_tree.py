@@ -9,19 +9,27 @@ class GrammarTree:
         self._root, self._grammar_tree = self.__get_grammar_tree(tagged_dataset)
         self._word_tree = POSTagger.get_tagged_word_tree(tagged_dataset)
 
+    def get_successors(self, tags):
+        """
+        Return a list of tags succeeding to the tags=(tag1, tag2) given
+        """
+        return self._grammar_tree[tags]
+
     def generate_haiku(self):
         # TODO: Implement syllables constraint
-        print self._grammar_tree.keys()
-        tag = GrammarTree.random_pick(self._root)
-        word = GrammarTree.random_pick(self._word_tree[tag])
+        tags = GrammarTree.random_pick(self._root)
+        word1 = GrammarTree.random_pick(self._word_tree[tags[0]])
+        word2 = GrammarTree.random_pick(self._word_tree[tags[1]])
 
         haiku = []
-        for i in xrange(10):
-            haiku.append(word)
-            tag = GrammarTree.random_pick(self._grammar_tree[tag])
-            word = GrammarTree.random_pick(self._word_tree[tag])
+        haiku.append(word1)
 
-        haiku.append(word)
+        for i in xrange(9):
+            haiku.append(word2)
+            tags = (tags[1], GrammarTree.random_pick(self._grammar_tree[tags]))
+            word2 = GrammarTree.random_pick(self._word_tree[tags[1]])
+
+        haiku.append(word2)
         return ' '.join(haiku)
 
     def generate_word(self, tag):
