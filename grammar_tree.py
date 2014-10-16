@@ -1,28 +1,36 @@
 import nltk
 import random
 import itertools
+from pos_tagger import POSTagger
 from collections import Counter
 
 class GrammarTree:
     def __init__(self, tagged_dataset):
         self._root, self._grammar_tree = self.__get_grammar_tree(tagged_dataset)
+        self._word_tree = POSTagger.get_tagged_word_tree(tagged_dataset)
 
-    def generate_haiku(self, word_tree):
+    def generate_haiku(self):
         # TODO: Implement syllables constraint
-        tag = GrammarTree.__random_pick(self._root)
-        word = GrammarTree.__random_pick(word_tree[tag])
+        tag = GrammarTree.random_pick(self._root)
+        word = GrammarTree.random_pick(self._word_tree[tag])
 
         haiku = []
         for i in xrange(10):
             haiku.append(word)
-            tag = GrammarTree.__random_pick(self._grammar_tree[tag])
-            word = GrammarTree.__random_pick(word_tree[tag])
+            tag = GrammarTree.random_pick(self._grammar_tree[tag])
+            word = GrammarTree.random_pick(self._word_tree[tag])
 
         haiku.append(word)
         return ' '.join(haiku)
 
+    def generate_word(self, tag):
+        """
+        Return a random word from the dataset which has the specified POS-tag
+        """
+        return GrammarTree.random_pick(self._word_tree[tag])
+
     @staticmethod
-    def __random_pick(plist):
+    def random_pick(plist):
         summed = 0
         r = random.random()
         for (e, p) in plist:

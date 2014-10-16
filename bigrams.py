@@ -12,6 +12,14 @@ class Bigrams:
         self._hyphenator = hyphen.Hyphenator(locale)
         self._bigrams_dict = self.__build__bigrams_dictionary(self.__compute_bigrams(dataset))
 
+    def get_successors(self, word):
+        """"
+        Return a list of word successors of the word given
+        """
+        if not word in self._bigrams_dict:
+            return []
+        return self._bigrams_dict[word]
+
     def generate_haiku(self, syllables=True):
         """
         If syllables is true, the haiku returned will be divided in 3 lines
@@ -55,7 +63,7 @@ class Bigrams:
                                 words = self._bigrams_dict[word]
                             except:
                                 # No successor for the selected word
-                                raise NotImplementedError()
+                                raise NotImplementedError("The selected word has no successor")
                             break
                         # Remove word which have too many syllables
                         elif tmpSyllables > remaining_syllables:
@@ -71,11 +79,11 @@ class Bigrams:
                             words = self._bigrams_dict[word]
                         except:
                             # No successor for the selected word
-                            raise NotImplementedError()
+                            raise NotImplementedError("The selected word has no successor")
 
                     # Line cannot be ended with the right number of syllables
                     elif len(words) == 0:
-                        raise NotImplementedError()
+                        raise NotImplementedError("Syllables constraint cannot be respected")
 
 
                 if i < Bigrams.HAIKU_LINES -1:
