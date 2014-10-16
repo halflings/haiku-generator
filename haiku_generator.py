@@ -59,7 +59,7 @@ class HaikuGenerator:
 
 if __name__ == '__main__':
     generator = HaikuGenerator()
-    print generator.generate_bigrams(True)
+    # print generator.generate_bigrams(True)
     print
     print generator.generate_grammar_tree()
     print

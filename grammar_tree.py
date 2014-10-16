@@ -11,6 +11,7 @@ class GrammarTree:
 
     def generate_haiku(self):
         # TODO: Implement syllables constraint
+        print self._grammar_tree.keys()
         tag = GrammarTree.random_pick(self._root)
         word = GrammarTree.random_pick(self._word_tree[tag])
 
@@ -50,38 +51,38 @@ class GrammarTree:
         """
         print "Building grammar tree..."
         root = GrammarTree.__build_root_probability(tagged_dataset)
-        gt = GrammarTree.__build_bigrams_dictionary(GrammarTree.__compute_bigrams(tagged_dataset))
+        gt = GrammarTree.__build_trigrams_dictionary(GrammarTree.__compute_trigrams(tagged_dataset))
 
         return root, gt
 
     @staticmethod
-    def __compute_bigrams(tagged_dataset):
+    def __compute_trigrams(tagged_dataset):
         """
-        Return a list of bigrams (list of 2 successive words and their tag)
+        Return a list of trigrams (list of 2 successive words and their tag)
         which can then be used to generate a grammar tree
         """
-        return list(itertools.chain(*[list(nltk.ngrams(haiku, 2)) for key in tagged_dataset.keys() for haiku in tagged_dataset[key]]))
+        return list(itertools.chain(*[list(nltk.ngrams(haiku, 3)) for key in tagged_dataset.keys() for haiku in tagged_dataset[key]]))
 
     @staticmethod
-    def __build_bigrams_dictionary(tagged_bigrams):
+    def __build_trigrams_dictionary(tagged_trigrams):
         """
         Return a dictionary:
-        - key: tag
+        - key: tag1, tag2
         - value: list of (tag, probability) following the key in the corpus
                  ordered by descending probability
         """
         dictionary = {}
 
         # Build dictionary
-        for t1, t2 in tagged_bigrams:
-            key = t1[1]
+        for t1, t2, t3 in tagged_trigrams:
+            key = (t1[1], t2[1])
             if not key in dictionary:
                 dictionary[key] = {}
 
-            if t2[1] in dictionary[key]:
-                dictionary[key][t2[1]] = dictionary[key][t2[1]] + 1
+            if t3[1] in dictionary[key]:
+                dictionary[key][t3[1]] = dictionary[key][t3[1]] + 1
             else:
-                dictionary[key][t2[1]] = 1
+                dictionary[key][t3[1]] = 1
 
         # Calculate probabilities
         for key in dictionary:
@@ -93,7 +94,7 @@ class GrammarTree:
 
     @staticmethod
     def __build_root_probability(tagged_dataset):
-        counter = Counter([haiku[0][1] for key in tagged_dataset.keys() for haiku in tagged_dataset[key]])
+        counter = Counter([(haiku[0][1], haiku[1][1]) for key in tagged_dataset.keys() for haiku in tagged_dataset[key]])
         sorted_tags = sorted(counter.items(), key=lambda tuple: tuple[1], reverse=True)
         sum_tags = sum(counter.values())
         return map(lambda (tag, n): (tag, float(n)/sum_tags), sorted_tags)
