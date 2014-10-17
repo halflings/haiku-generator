@@ -2,6 +2,7 @@ import nltk
 import itertools
 import random
 import hyphen
+from pos_tagger import POSTagger
 
 class Bigrams:
     # Constants
@@ -58,6 +59,8 @@ class Bigrams:
                         # line, we select it
                         if tmpSyllables == remaining_syllables:
                             remaining_syllables = 0
+                            if word == POSTagger.POSSESSIVE or word in POSTagger.PUNCTUATION:
+                                haiku = haiku[0:-1]
                             haiku += word + ' '
                             try:
                                 words = self._bigrams_dict[word]
@@ -74,6 +77,8 @@ class Bigrams:
                     if remaining_syllables != 0:
                         word = random.choice(words)
                         remaining_syllables -= self.__count_syllables(word)
+                        if word == POSTagger.POSSESSIVE or word in POSTagger.PUNCTUATION:
+                                haiku = haiku[0:-1]
                         haiku += word + ' '
                         try:
                             words = self._bigrams_dict[word]
@@ -99,10 +104,7 @@ class Bigrams:
         probability. So that, a third word can easily be generated based on the two
         previous ones
         """
-        # TODO: get rid of possesive form
-        tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')
-
-        return list(itertools.chain(*[list(nltk.ngrams(tokenizer.tokenize(haiku), 2)) for key in dataset.keys() for haiku in dataset[key]]))
+        return list(itertools.chain(*[list(nltk.ngrams(POSTagger.tokenizer.tokenize(haiku), 2)) for key in dataset.keys() for haiku in dataset[key]]))
 
     def __build__bigrams_dictionary(self, bigrams):
         """

@@ -21,16 +21,17 @@ class GrammarTree:
         word1 = GrammarTree.random_pick(self._word_tree[tags[0]])
         word2 = GrammarTree.random_pick(self._word_tree[tags[1]])
 
-        haiku = []
-        haiku.append(word1)
+        haiku = word1 + ' '
 
         for i in xrange(9):
-            haiku.append(word2)
+            if word2 == POSTagger.POSSESSIVE or word in POSTagger.PUNCTUATION:
+                haiku = haiku[0:-1]
+            haiku += word2 + ' '
             tags = (tags[1], GrammarTree.random_pick(self._grammar_tree[tags]))
             word2 = GrammarTree.random_pick(self._word_tree[tags[1]])
 
-        haiku.append(word2)
-        return ' '.join(haiku)
+        haiku += word2 + ' '
+        return haiku
 
     def generate_word(self, tag):
         """
