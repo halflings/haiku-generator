@@ -1,6 +1,8 @@
 import json
 import nltk
 import random
+import heuristic
+from wan import WAN
 from bigrams import Bigrams
 from grammar_tree import GrammarTree
 from pos_tagger import POSTagger
@@ -51,10 +53,11 @@ class HaikuGenerator:
 
 if __name__ == '__main__':
     generator = HaikuGenerator()
-    print generator.generate_bigrams(True)
-    print
-    print generator.generate_grammar_tree()
-    print
-    print generator.generate_tagged_word('NN')
-    print
-    print generator.generate_tagged_successor("snow", "NN")
+    #print generator.generate_bigrams(True)
+    #print generator.generate_grammar_tree()
+    for x in xrange(1,10):
+        heuristic.ghaiku(generator._grammar_tree, WAN())
+    #print
+    #print generator.generate_tagged_word('NN')
+    #print
+    #print generator.generate_tagged_successor("snow", "NN")
