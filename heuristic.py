@@ -11,6 +11,7 @@ def ghaiku(grammar_tree,meaning_generator):
 	'RP': 'not', # off?
 	'POS': '\'s',
 	'MD':'can',
+	'WRB':'who',
 	}
 	# starting distribution
 	start = grammar_tree.random_pick(grammar_tree._root)
@@ -18,7 +19,9 @@ def ghaiku(grammar_tree,meaning_generator):
 	# generate POS tags
 	for i in xrange(2,10):
 		POSlist += [grammar_tree.random_pick(grammar_tree.get_successors((POSlist[i-2],POSlist[i-1])))]
-		print(POSlist)
+	print(POSlist)
+	# get some linebreaks
+	POSlist = guessLineBreaks(POSlist)
 	# fill in the blanks
 	haiku = ''
 	oldWords = [meaning_generator.random_word('NN')]
@@ -34,8 +37,6 @@ def ghaiku(grammar_tree,meaning_generator):
 			newWord = suitable_word(oldWords,'RB',meaning_generator)
 		elif x.startswith('JJ'):
 			newWord = suitable_word(oldWords,'JJ',meaning_generator)
-		else:
-			haiku += x+' '
 		haiku += newWord+' '
 		oldWords += [newWord]
 	print(haiku)
@@ -48,3 +49,16 @@ def suitable_word(oldWords,POStag,meaning_generator):
 				return newWord
 	# couldn't find any, let's just return random word
 	return meaning_generator.random_word(POStag)
+
+def guessLineBreaks(POStags):
+	toReturn = POStags[0:1]
+	lastTag = None
+	for i in xrange(1,len(POStags)-1):
+		if POStags[i-1].startswith('NN') and POStags[i].startswith('NN'):
+			toReturn += ['\n']
+		elif POStags[i] == 'DT':
+			toReturn += ['\n']
+		toReturn += [POStags[i]]
+	return toReturn
+
+
