@@ -7,6 +7,10 @@ class WordNetUtil:
     brown_ic = wordnet_ic.ic('ic-brown.dat')
     @staticmethod
     def get_related_word_list(word, posTag='ALL'):
+        """
+        Returns a list of words similar to the given word, with posTag beginning with the given posTag.
+        The return list is of format [(resultWord, posTag)]
+        """
         result_list = [];
         res = [];
         for ss in (wn.synsets(word)):
