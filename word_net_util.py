@@ -1,10 +1,32 @@
 import nltk
+import random
+from heapq import nlargest
 from nltk.corpus import wordnet as wn
 from nltk.corpus import wordnet_ic
 
 
 class WordNetUtil:
-    brown_ic = wordnet_ic.ic('ic-brown.dat')
+    #brown_ic = wordnet_ic.ic('ic-brown.dat')
+    __wordnetlist = [x for x in wn.all_synsets()]
+    __POSmap = {'NN':'n','VB':'v','JJ':'a','RB':'r'}
+
+    def random_word(self,posTag):
+        return random.choice([s.name().split('.')[0] for s in  self.__wordnetlist if self.__has_POS_tag(s,posTag)])
+
+    
+    def associate(self,seed,posTag):
+        """
+        Returns one random word associated with the seed word 
+        and whose POS tag matches POStag
+        """
+        return random.choice([x for (x,_) in WordNetUtil.get_related_word_list(seed,posTag)])
+        
+    def __has_POS_tag(self,synset, POStag):
+        # let's be more strict and only use first definition
+        return synset.pos() == self.__POSmap[POStag]
+        #return len([synset for synset in wn.synsets(word) if synset.pos() == self._POSmap[POStag]]) > 0
+    
+    
     @staticmethod
     def get_related_word_list(word, posTag='ALL'):
         """
@@ -65,7 +87,6 @@ class WordNetUtil:
                 res.append((w[0], w[1]));
 
         return res;
-
     @staticmethod
     def __processString(str_):
         tokens = nltk.word_tokenize(str_);
