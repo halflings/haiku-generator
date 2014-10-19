@@ -1,4 +1,6 @@
 from hyphen import Hyphenator
+import json
+from haikutagger import tokenize_dataset,tokenize_haiku, pick_random_structure
 
 HAIKU_LINES = 3
 HAIKU_SYLLABLES = [5, 7, 5]
@@ -44,7 +46,24 @@ def guessLineBreaksHaiku(grammar_tree,meaning_generator):
 		newWord = wordFromPOStag(postag,oldWords,meaning_generator)
 		oldWords += [newWord]
 		haiku += newWord+' '
-		
+	print(haiku)
+
+def guessFromGrammarStructs(meaning_generator):
+	NUM_HAIKUS = 400
+	with open('haikus.json') as haikus_file:
+		dataset = json.load(haikus_file)
+	pos_counter = tokenize_dataset(dataset, haikus_limit=NUM_HAIKUS)
+	pos_tags = []
+	for i in xrange(3):
+	    pos_tags += list(pick_random_structure(pos_counter))
+	    pos_tags += ['\n']
+	    
+	haiku = ''
+	oldWords = [meaning_generator.random_word()]
+	for postag in pos_tags:
+		newWord = wordFromPOStag(postag,oldWords,meaning_generator)
+		oldWords += [newWord]
+		haiku += newWord+' '
 	print(haiku)
 
 
