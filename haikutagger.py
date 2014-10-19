@@ -1,8 +1,8 @@
+from collections import Counter
+import itertools
 import json
 import nltk
 import random
-
-from collections import Counter
 
 TOKENIZER = nltk.tokenize.RegexpTokenizer(r"\w+|[!,.:;?]|'s")
 PUNCTUATION_SET = {'!', ',', '.', ':', ';', '?'}
@@ -24,9 +24,19 @@ def tokenize_dataset(dataset, haikus_limit):
     pos_counter = Counter(line_tags for h_tags in haiku_tags for line_tags in h_tags)
     return pos_counter
 
+def pick_random_structure(pos_counter):
+    i = random.randrange(sum(pos_counter.values()))
+    return next(itertools.islice(pos_counter.elements(), i, None))
+
 # Maximum number of haikus we will process ; POS tagging takes a long time!
-NUM_HAIKUS = 1000
+NUM_HAIKUS = 400
 if __name__ == '__main__':
     with open('haikus.json') as haikus_file:
         dataset = json.load(haikus_file)
-    print tokenize_dataset(dataset, haikus_limit=NUM_HAIKUS)
+    pos_counter = tokenize_dataset(dataset, haikus_limit=NUM_HAIKUS)
+    print pos_counter
+
+    # Example of picking up some random structures
+    for i in xrange(10):
+        pos_tags = pick_random_structure(pos_counter)
+        print pos_tags, pos_counter[pos_tags]
