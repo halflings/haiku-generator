@@ -10,7 +10,7 @@ class WordNetUtil:
     __wordnetlist = [x for x in wn.all_synsets()]
     __POSmap = {'NN':'n','VB':'v','JJ':'a','RB':'r'}
 
-    def random_word(self,posTag):
+    def random_word(self,posTag='NNmai'):
         return random.choice([s.name().split('.')[0] for s in  self.__wordnetlist if self.__has_POS_tag(s,posTag)])
 
     

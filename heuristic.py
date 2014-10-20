@@ -1,6 +1,7 @@
 from hyphen import Hyphenator
 import json
 from haikutagger import tokenize_dataset,tokenize_haiku, pick_random_structure
+import pattern.en as pt
 
 HAIKU_LINES = 3
 HAIKU_SYLLABLES = [5, 7, 5]
@@ -49,22 +50,42 @@ def guessLineBreaksHaiku(grammar_tree,meaning_generator):
 	print(haiku)
 
 def guessFromGrammarStructs(meaning_generator):
-	NUM_HAIKUS = 400
+	NUM_HAIKUS = 600
 	with open('haikus.json') as haikus_file:
 		dataset = json.load(haikus_file)
 	pos_counter = tokenize_dataset(dataset, haikus_limit=NUM_HAIKUS)
 	pos_tags = []
 	for i in xrange(3):
-	    pos_tags += list(pick_random_structure(pos_counter))
-	    pos_tags += ['\n']
-	    
+		grammar_struct = pick_random_structure(pos_counter)
+		pos_tags += list(grammar_struct)	
+		print(grammar_struct)
+		pos_tags += ['\n']
+	
 	haiku = ''
-	oldWords = [meaning_generator.random_word()]
+	oldWords = [meaning_generator.random_word('NN')]
 	for postag in pos_tags:
 		newWord = wordFromPOStag(postag,oldWords,meaning_generator)
 		oldWords += [newWord]
 		haiku += newWord+' '
 	print(haiku)
+
+
+def shapeNoun(noun,posTag):
+	"""
+	Reshapes the base noun according to it's pos tag
+	Assuming noun is in singular form
+	"""
+	if posTag == 'NNS' or posTag == 'NNPS':
+		return pt.pluralize(noun)
+	else:
+		return pt.singularize(noun)
+
+def shapeVerb(verb,posTag):
+	"""
+	Reshapes the verb to get proper grammar, like past, present etc etc
+	"""
+	print(verb,posTag,pt.conjugate(verb,posTag))
+	return pt.conjugate(verb,posTag)
 
 
 def wordFromPOStag(POStag,oldWords,meaning_generator):
@@ -73,7 +94,7 @@ def wordFromPOStag(POStag,oldWords,meaning_generator):
 	'DT':'the',
 	'CC':'and',
 	"PRP$":'its',
-	'PRP':'me',
+	'PRP':'me',	
 	'IN':'at',
 	'TO':'to',
 	'RP': 'not', # off?
@@ -86,9 +107,9 @@ def wordFromPOStag(POStag,oldWords,meaning_generator):
 	if fillers.has_key(POStag):
 		newWord = fillers[POStag]+' '
 	elif POStag.startswith('NN'): # TODO: make grammar absolutely correct
-		newWord = suitable_word(oldWords,'NN',meaning_generator)
+		newWord = shapeNoun(suitable_word(oldWords,'NN',meaning_generator),POStag)
 	elif POStag.startswith('VB'):
-		newWord = suitable_word(oldWords,'VB',meaning_generator)
+		newWord = shapeVerb(suitable_word(oldWords,'VB',meaning_generator),POStag)
 	elif POStag.startswith('RB'):
 		newWord = suitable_word(oldWords,'RB',meaning_generator)
 	elif POStag.startswith('JJ'):
