@@ -24,8 +24,11 @@ class WAN:
 	def random_word(self,POStag='NN'):
 		while True:
 			word = self._assoc.keys()[int(random.random()*len(self._assoc.keys()))]
-			if self.__has_POS_tag(word,POStag):
-				return word
+			#print(nltk.pos_tag([word])[0][1],POStag)
+			if nltk.pos_tag([word])[0][1] == POStag:
+			 	return word	
+			# if self.__has_POS_tag(word,POStag):
+			#  	return word
 
 	
 	def __has_POS_tag(self,word, POStag):

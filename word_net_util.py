@@ -17,7 +17,7 @@ class WordNetUtil:
     def associate(self,seed,posTag):
         """
         Returns one random word associated with the seed word 
-        and whose POS tag matches POStag
+        and whose POS tag matches posTag
         """
         return random.choice([x for (x,_) in WordNetUtil.get_related_word_list(seed,posTag)])
         

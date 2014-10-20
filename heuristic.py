@@ -2,6 +2,7 @@ from hyphen import Hyphenator
 import json
 from haikutagger import tokenize_dataset,tokenize_haiku, pick_random_structure
 import pattern.en as pt
+from nltk.corpus import wordnet as wn
 
 HAIKU_LINES = 3
 HAIKU_SYLLABLES = [5, 7, 5]
@@ -50,24 +51,34 @@ def guessLineBreaksHaiku(grammar_tree,meaning_generator):
 	print(haiku)
 
 def guessFromGrammarStructs(meaning_generator):
-	NUM_HAIKUS = 600
-	with open('haikus.json') as haikus_file:
-		dataset = json.load(haikus_file)
-	pos_counter = tokenize_dataset(dataset, haikus_limit=NUM_HAIKUS)
-	pos_tags = []
-	for i in xrange(3):
-		grammar_struct = pick_random_structure(pos_counter)
-		pos_tags += list(grammar_struct)	
-		print(grammar_struct)
-		pos_tags += ['\n']
+	# NUM_HAIKUS = 400
+	# with open('haikus.json') as haikus_file:
+	# 	dataset = json.load(haikus_file)
+	# pos_counter = tokenize_dataset(dataset, haikus_limit=NUM_HAIKUS)
 	
-	haiku = ''
-	oldWords = [meaning_generator.random_word('NN')]
-	for postag in pos_tags:
-		newWord = wordFromPOStag(postag,oldWords,meaning_generator)
-		oldWords += [newWord]
-		haiku += newWord+' '
-	print(haiku)
+	for x in xrange(1,10):
+		# pos_tags = []
+		# for i in xrange(3):
+		#  	grammar_struct = pick_random_structure(pos_counter)
+		#  	print(grammar_struct)
+		#  	pos_tags += list(grammar_struct)	
+		#  	pos_tags += ['\n']
+
+		pos_tags = ['DT', 'JJ', 'NN','\n',
+		'NNS', 'VBG','\n',
+		'JJ', 'JJ','NN',
+		]	
+		
+
+		haiku = ''
+		seedWord = 'nature'
+		oldWords = [meaning_generator.random_word('NN')]
+		for postag in pos_tags:
+			lastWord = wordFromPOStag(postag,seedWord,oldWords,meaning_generator)
+			oldWords += [wn.morphy(lastWord)]
+			haiku += lastWord+' '
+		print(haiku)
+		print("")
 
 
 def shapeNoun(noun,posTag):
@@ -78,17 +89,16 @@ def shapeNoun(noun,posTag):
 	if posTag == 'NNS' or posTag == 'NNPS':
 		return pt.pluralize(noun)
 	else:
-		return pt.singularize(noun)
+		return noun
 
 def shapeVerb(verb,posTag):
 	"""
 	Reshapes the verb to get proper grammar, like past, present etc etc
 	"""
-	print(verb,posTag,pt.conjugate(verb,posTag))
 	return pt.conjugate(verb,posTag)
 
 
-def wordFromPOStag(POStag,oldWords,meaning_generator):
+def wordFromPOStag(POStag,seedWord,oldWords,meaning_generator):
 	# some filler words
 	fillers = {
 	'DT':'the',
@@ -107,21 +117,21 @@ def wordFromPOStag(POStag,oldWords,meaning_generator):
 	if fillers.has_key(POStag):
 		newWord = fillers[POStag]+' '
 	elif POStag.startswith('NN'): # TODO: make grammar absolutely correct
-		newWord = shapeNoun(suitable_word(oldWords,'NN',meaning_generator),POStag)
+		newWord = shapeNoun(suitable_word(seedWord,oldWords,'NN',meaning_generator),POStag)
 	elif POStag.startswith('VB'):
-		newWord = shapeVerb(suitable_word(oldWords,'VB',meaning_generator),POStag)
+		newWord = shapeVerb(suitable_word(seedWord,oldWords,'VB',meaning_generator),POStag)
 	elif POStag.startswith('RB'):
-		newWord = suitable_word(oldWords,'RB',meaning_generator)
+		newWord = suitable_word(seedWord,oldWords,'RB',meaning_generator)
 	elif POStag.startswith('JJ'):
-		newWord = suitable_word(oldWords,'JJ',meaning_generator)
+		newWord = suitable_word(seedWord,oldWords,'JJ',meaning_generator)
 	return unicode(newWord)
 
 
-def suitable_word(oldWords,POStag,meaning_generator):
+def suitable_word(seedWord,oldWords,POStag,meaning_generator):
 	for x in xrange(1,3):
-		for word in oldWords:
+		for word in reversed(oldWords + [seedWord]): # will say, the seedword and then last word is most significant
 			newWord = meaning_generator.associate(word,POStag)
-			if newWord != None and newWord not in oldWords:
+			if newWord != None and wn.morphy(newWord) not in oldWords:
 				return newWord
 	# couldn't find any, let's just return random word
 	return meaning_generator.random_word(POStag)
