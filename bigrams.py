@@ -9,9 +9,9 @@ class Bigrams:
     HAIKU_LINES = 3
     HAIKU_SYLLABLES = [5, 7, 5]
 
-    def __init__(self, dataset, locale='en_US'):
+    def __init__(self, dataset, locale='en_US', reverse=False):
         self._hyphenator = hyphen.Hyphenator(locale)
-        self._bigrams_dict = self.__build__bigrams_dictionary(self.__compute_bigrams(dataset))
+        self._bigrams_dict = self.__build__bigrams_dictionary(self.__compute_bigrams(dataset), reverse)
 
     def get_successors(self, word):
         """"
@@ -106,22 +106,27 @@ class Bigrams:
         """
         return list(itertools.chain(*[list(nltk.ngrams(POSTagger.tokenizer.tokenize(haiku), 2)) for key in dataset.keys() for haiku in dataset[key]]))
 
-    def __build__bigrams_dictionary(self, bigrams):
+    def __build__bigrams_dictionary(self, bigrams, reverse):
         """
         Return a dictionary:
         - key: word from the corpus
-        - value: list of independant words following the key in the corpus
+        - value: list of independant words following (or preceeding if reverse)
+                 the key in the corpus
         Note: the value list does not contain unique words, so that we can
         randomly pick a word according to the probability distribution
         """
         dictionary = {}
 
         for w1, w2 in bigrams:
-            key = w1
-            if key in dictionary:
-                dictionary[key].append(w2)
+            if reverse:
+                key, value = w2, w1
             else:
-                dictionary[key] = [w2]
+                key, value = w1, w2
+
+            if key in dictionary:
+                dictionary[key].append(value)
+            else:
+                dictionary[key] = [value]
 
         return dictionary
 
