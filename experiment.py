@@ -28,21 +28,19 @@ NUM_HAIKUS = 100
 with open('haikus.json') as haikus_file:
     dataset = json.load(haikus_file)
 pos_counter = tokenize_dataset(dataset, haikus_limit=NUM_HAIKUS, fillers=FILLERS)
-print FILLERS
 
-INSPIRATIONS = ['summer', 'spring', 'love', 'sadness', 'nature', 'city', 'computers', 'dinosaurs']
-
+INSPIRATIONS = ['love', 'sadness', 'water', 'nature', 'city', 'computer', 'mafia']
 
 wan = WAN()
 
-def generate_haiku():
+def generate_haiku(inspirations=INSPIRATIONS):
     popular_long_pos = Counter(dict((p, c) for (p, c) in pos_counter.most_common(15) if len(p) > 2))
     popular_short_pos = Counter(dict((p, c) for (p, c) in pos_counter.most_common(15) if len(p) < 3))
     pos_tags = [pick_random_structure(popular_long_pos),
                 pick_random_structure(popular_short_pos),
                 pick_random_structure(popular_long_pos)]
 
-    lines = [generate_line(line_tags) for line_tags in pos_tags]
+    lines = [generate_line(line_tags, inspirations=inspirations) for line_tags in pos_tags]
 
     # "Decorating" the haiku
     lines[0][0] = lines[0][0].title()
@@ -50,14 +48,14 @@ def generate_haiku():
     lines[-1][-1] = lines[-1][-1] + '.'
     return '\n'.join(' '.join(w for w in line) for line in lines)
 
-def generate_line(pos_tags):
+def generate_line(pos_tags, inspirations):
     words = []
     for tag in pos_tags:
-        word = generate_word(tag, pos_tags, words)
+        word = generate_word(tag, pos_tags, words, inspirations)
         words.append(word)
     return words
 
-def generate_word(tag, pos_tags, words):
+def generate_word(tag, pos_tags, words, inspirations):
     if tag in FILLERS:
         return random.choice(tuple(FILLERS[tag]))
 
@@ -67,9 +65,9 @@ def generate_word(tag, pos_tags, words):
             clean_tag = t
             break
 
-    inspiration = random.choice(INSPIRATIONS)
+    inspiration = random.choice(inspirations)
     meaningful_words = [w for i, w in enumerate(words)
-                          if any(pos_tags[i].startswith(t) for t in {'NN', 'VB', 'RB', 'JJ'})]
+                          if any(pos_tags[i].startswith(t) for t in {'NN', 'JJ'})]
     if meaningful_words:
         inspiration = meaningful_words[-1]
     word = wan.associate(inspiration, clean_tag)
@@ -84,6 +82,10 @@ def generate_word(tag, pos_tags, words):
 
     # Special case for "a"/"an"
     if words and ((words[-1] == 'an' and word[0] not in VOWELS) or (words[-1] == 'a' and word[0] in VOWELS)):
-        word = generate_word(tag, pos_tags, words)
+        word = generate_word(tag, pos_tags, words, inspirations)
+
+    # Avoid repeating words
+    if word in words:
+        word = generate_word(tag, pos_tags, words, inspirations)
 
     return word
