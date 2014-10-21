@@ -10,24 +10,25 @@ from wan import WAN
 
 import pattern.en
 
+FILLERS = {
+    'DT': {'the'},
+    'CC': {'and'},
+    'PRP$': {'its'},
+    'PRP': {'me'},
+    'IN': {'at'},
+    'TO': {'to'},
+    'RP': {'not'},
+    'POS': {"'s"},
+    'MD': {'can'},
+    'WRB': {'who'},
+    'WP': {'what'},
+}
+VOWELS = set('aeiou')
 NUM_HAIKUS = 100
 with open('haikus.json') as haikus_file:
     dataset = json.load(haikus_file)
-pos_counter = tokenize_dataset(dataset, haikus_limit=NUM_HAIKUS)
-
-FILLERS = {
-    'DT':'the',
-    'CC':'and',
-    "PRP$":'its',
-    'PRP':'me',
-    'IN':'at',
-    'TO':'to',
-    'RP': 'not', # off?
-    'POS': '\'s',
-    'MD':'can',
-    'WRB':'who',
-    'WP':'what',
-}
+pos_counter = tokenize_dataset(dataset, haikus_limit=NUM_HAIKUS, fillers=FILLERS)
+print FILLERS
 
 INSPIRATIONS = ['summer', 'spring', 'love', 'sadness', 'nature', 'city', 'computers', 'dinosaurs']
 
@@ -58,7 +59,7 @@ def generate_line(pos_tags):
 
 def generate_word(tag, pos_tags, words):
     if tag in FILLERS:
-        return FILLERS[tag]
+        return random.choice(tuple(FILLERS[tag]))
 
     clean_tag = tag
     for t in {'NN', 'VB', 'RB', 'JJ'}:
@@ -80,5 +81,9 @@ def generate_word(tag, pos_tags, words):
         word = pattern.en.pluralize(word)
     elif tag.startswith('VB'):
         word = pattern.en.conjugate(word, tag)
+
+    # Special case for "a"/"an"
+    if words and ((words[-1] == 'an' and word[0] not in VOWELS) or (words[-1] == 'a' and word[0] in VOWELS)):
+        word = generate_word(tag, pos_tags, words)
 
     return word
