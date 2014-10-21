@@ -2,13 +2,14 @@ import json
 import nltk
 import random
 import heuristic
+from collections import Counter
 from wan import WAN
 from bigrams import Bigrams
 from grammar_tree import GrammarTree
 from pos_tagger import POSTagger
 
 class HaikuGenerator:
-    def __init__(self, haikus_file='haikus_sample.json'):
+    def __init__(self, haikus_file='haikus.json'):
         self._dataset = HaikuGenerator.__parse_dataset(haikus_file)
         self._tagged_dataset = POSTagger.get_pos_tagged_dataset(self._dataset)
         self._bigrams = Bigrams(self._dataset)
@@ -44,6 +45,21 @@ class HaikuGenerator:
 
         return candidates[random.randint(0, len(candidates)-1)][0]
 
+    def get_bigrams(self, word, tagged=False, successor=True):
+        """
+        Return a counter containing a list of predecessors or successors for the given word
+        """
+        if successor:
+            bigrams = self._bigrams.get_successors(word)
+        else:
+            bigrams = self._reversed_bigrams.get_successors(word)
+
+        if tagged:
+            bigrams = nltk.pos_tag(bigrams)
+
+        return Counter(bigrams)
+
+
     @staticmethod
     def __parse_dataset(haikus_file):
         """
@@ -63,5 +79,8 @@ if __name__ == '__main__':
     for x in xrange(1,10):
         heuristic.ghaiku(generator._grammar_tree, WAN())
     # print generator.generate_tagged_word('NN')
-    print generator.generate_tagged_bigram('lake', 'DT', successor=True)
-    print generator.generate_tagged_bigram('lake', 'DT', successor=False)
+
+    # print generator.generate_tagged_bigram('lake', 'DT', successor=True)
+    # print generator.generate_tagged_bigram('lake', 'DT', successor=False)
+    # print generator.get_bigrams('water', tagged=True, successor=True)
+    # print generator.get_bigrams('water', tagged=False, successor=False)
