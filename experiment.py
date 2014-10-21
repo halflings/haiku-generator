@@ -56,15 +56,18 @@ def generate_line(pos_tags, inspirations):
     return words
 
 def generate_word(tag, pos_tags, words, inspirations):
+    # WAN does not take some pos tags into account, so we pick random values
     if tag in FILLERS:
         return random.choice(tuple(FILLERS[tag]))
 
+    # Picking a 'clean tag' to be used with WAN
     clean_tag = tag
     for t in {'NN', 'VB', 'RB', 'JJ'}:
         if tag.startswith(t) and tag != t:
             clean_tag = t
             break
 
+    # Picking the last meaningful word as an inspiration (or a random value from 'inspirations' otherwise)
     inspiration = random.choice(inspirations)
     meaningful_words = [w for i, w in enumerate(words)
                           if any(pos_tags[i].startswith(t) for t in {'NN', 'JJ'})]
@@ -72,9 +75,11 @@ def generate_word(tag, pos_tags, words, inspirations):
         inspiration = meaningful_words[-1]
     word = wan.associate(inspiration, clean_tag)
 
+    # If no association is found, we pick a random word
     if word is None:
         word = wan.random_word(clean_tag)
 
+    # Making nouns plural and conjugating verbs
     if tag == 'NNS' or tag == 'NNPS':
         word = pattern.en.pluralize(word)
     elif tag.startswith('VB'):
