@@ -12,6 +12,7 @@ from word_net_util import WordNetUtil
 
 import pattern.en
 
+from nltk.corpus import wordnet as wn
 
 
 FILLERS = {
@@ -33,11 +34,11 @@ with open('haikus.json') as haikus_file:
     dataset = json.load(haikus_file)
 pos_counter = tokenize_dataset(dataset, haikus_limit=NUM_HAIKUS, fillers=FILLERS)
 
-INSPIRATIONS = ['autumn','frog','horse','road','valley']
+INSPIRATIONS = ['autumn','summer','winter','frog','love','moon','city']
 
 haikugen = HaikuGenerator()
 
-meaning_generator = WordNetUtil()
+meaning_generator = WAN()
 
 def generate_haiku(inspirations=INSPIRATIONS):
     popular_long_pos = Counter(dict((p, c) for (p, c) in pos_counter.most_common(15) if len(p) > 2))
@@ -51,30 +52,31 @@ def generate_haiku(inspirations=INSPIRATIONS):
 
 def generate_safe_haiku():
     safe_pos_tags = [
-    #[('VBG', 'DT', 'NN'), ('NNS',), ('JJ','NN', 'NNS')],
-    [('VBG', 'NN'), ('NN'), ('VBG','IN', 'DT', 'NN')],
+    [('VBG', 'DT', 'NN'), ('NNS',), ('JJ','NN', 'NNS')],
+    [('VBG', 'NN'), ('NN',), ('VBG','IN', 'DT', 'NN')],
     ]
-    return haiku_from_pos_tags(safe_pos_tags[0],random.choice(INSPIRATIONS))
+    return haiku_from_pos_tags(random.choice(safe_pos_tags),random.choice(INSPIRATIONS))
 
 
 def haiku_from_pos_tags(pos_tags,inspiration):
-    lines = [generate_line(line_tags, inspiration=inspiration) for line_tags in pos_tags]
-
+    word_dump = []
+    lines = [generate_line(line_tags,word_dump, inspiration=inspiration) for line_tags in pos_tags]
     # "Decorating" the haiku
     lines[0][0] = lines[0][0].title()   
     lines[0][-1] = lines[0][-1] + u'—'
     lines[-1][-1] = lines[-1][-1] + '.'
     return '\n'.join(' '.join(w for w in line) for line in lines)
 
-
-def generate_line(pos_tags, inspiration):
+def generate_line(pos_tags,word_dump, inspiration):
     words = []
     for tag in pos_tags:
-        word = generate_word(tag, pos_tags, words, inspiration)
+        word = generate_word(tag, pos_tags,words, word_dump, inspiration)
         words.append(word)
+        word_dump.append(wn.morphy(word))
     return words
 
-def generate_word(tag, pos_tags, words, inspiration):
+def generate_word(tag, pos_tags, words,word_dump, inspiration):
+    #print(pos_tags)
     # WAN does not take some pos tags into account, so we pick random values
     if tag == 'IN' and len(words) > 0:
         # let's use bigrams for finding suitable following preposition
@@ -100,13 +102,13 @@ def generate_word(tag, pos_tags, words, inspiration):
     # Otherwise pick the last meaningful word as inspiration 
     if word is None:
         meaningful_words = [w for i, w in enumerate(words)
-                              if any(pos_tags[i].startswith(t) for t in {'NN'})]
+                              if any(pos_tags[i].startswith(t) for t in ['NN','VB'])]
         if meaningful_words:
             inspiration = meaningful_words[-1]
         word = meaning_generator.associate(inspiration,clean_tag)
 
     # If still no association is found, we pick a random word
-    if word is None:
+    if word is None or random.random() < 0.01: # to break out of infinite loops
         word = meaning_generator.random_word(clean_tag)
 
     # Making nouns plural and conjugating verbs
@@ -118,10 +120,10 @@ def generate_word(tag, pos_tags, words, inspiration):
     # Special case for "a"/"an", both vowel handling and some pluralization handling
     if words and ((words[-1] == 'an' and word[0] not in VOWELS) or (words[-1] == 'a' and word[0] in VOWELS) 
         or ((words[-1] =='a' or words[-1] == 'an') and  tag[-1] == 'S')):
-        word = generate_word(tag, pos_tags, words, inspiration)
+        word = generate_word(tag, pos_tags, words,word_dump, inspiration)
 
     # Avoid repeating words
-    if word in words:
-        word = generate_word(tag, pos_tags, words, inspiration)
+    if wn.morphy(word) in word_dump:
+        word = generate_word(tag, pos_tags, words,word_dump, inspiration)
 
     return word
