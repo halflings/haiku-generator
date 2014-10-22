@@ -76,8 +76,8 @@ def generate_line(pos_tags, inspiration):
 
 def generate_word(tag, pos_tags, words, inspiration):
     # WAN does not take some pos tags into account, so we pick random values
-    
     if tag == 'IN' and len(words) > 0:
+        # let's use bigrams for finding suitable following preposition
         preposition = haikugen.generate_tagged_bigram(words[-1],'IN')
         if preposition is None:
             return random.choice(tuple(FILLERS['IN']))
@@ -94,10 +94,10 @@ def generate_word(tag, pos_tags, words, inspiration):
             break
 
     word = None
-    # getting associated word from inspiration word
+    # getting associated word from inspiration word at 50% probability
     if random.random() < 0.5:
         word = meaning_generator.associate(inspiration, clean_tag)    
-    # Otherwise picking the last meaningful word as an inspiration (or a random value from 'inspirations' otherwise)
+    # Otherwise pick the last meaningful word as inspiration 
     if word is None:
         meaningful_words = [w for i, w in enumerate(words)
                               if any(pos_tags[i].startswith(t) for t in {'NN'})]
@@ -115,7 +115,7 @@ def generate_word(tag, pos_tags, words, inspiration):
     elif tag.startswith('VB'):
         word = pattern.en.conjugate(word, tag)
 
-    # Special case for "a"/"an"
+    # Special case for "a"/"an", both vowel handling and some pluralization handling
     if words and ((words[-1] == 'an' and word[0] not in VOWELS) or (words[-1] == 'a' and word[0] in VOWELS) 
         or ((words[-1] =='a' or words[-1] == 'an') and  tag[-1] == 'S')):
         word = generate_word(tag, pos_tags, words, inspiration)
