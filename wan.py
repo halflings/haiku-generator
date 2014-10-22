@@ -18,7 +18,7 @@ class WAN:
 			key = n[0].lower().strip()
 			value = n[1].lower().strip()
 			if assoc.has_key(key):
-				assoc[key] = assoc[key] + [value	]
+				assoc[key] = assoc[key] + [value]
 			else:
 				assoc[key] = [value]
 		self._assoc = assoc
