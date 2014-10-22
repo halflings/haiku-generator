@@ -3,7 +3,11 @@ import random
 from heapq import nlargest
 from nltk.corpus import wordnet as wn
 from nltk.corpus import wordnet_ic
+from nltk.tag.hunpos import HunposTagger
 
+
+
+tagger = HunposTagger('en_wsj.model')
 
 class WordNetUtil:
     #brown_ic = wordnet_ic.ic('ic-brown.dat')
@@ -90,5 +94,6 @@ class WordNetUtil:
     @staticmethod
     def __processString(str_):
         tokens = nltk.word_tokenize(str_);
-        tagged = nltk.pos_tag(tokens);
+        #tagged = nltk.pos_tag(tokens);
+        tagged = tagger.tag(tokens)
         return tagged;

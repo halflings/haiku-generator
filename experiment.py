@@ -38,7 +38,7 @@ INSPIRATIONS = ['autumn','summer','winter','frog','love','moon','city']
 
 haikugen = HaikuGenerator()
 
-meaning_generator = WAN()
+meaning_generator = WordNetUtil()
 
 def generate_haiku(inspirations=INSPIRATIONS):
     popular_long_pos = Counter(dict((p, c) for (p, c) in pos_counter.most_common(15) if len(p) > 2))
