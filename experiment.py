@@ -110,24 +110,14 @@ def generate_haiku(inspiration,meaning_generator):
     return haiku_from_pos_tags(pos_tags,inspiration,meaning_generator)
 
 
-def generate8haikus():
+def generate10haikus():
     wan = WAN()
     wnet = WordNetUtil()
-    for inspiration in ['summer','winter','city','love']:
-        print("---------------------")
-        print(generate_haiku(inspiration,wan))
-        print("--"+random.choice(JAPANESE_MASTERS))
-        print("---------------------")
-        print(generate_haiku(inspiration,wnet))
-        print("--"+random.choice(JAPANESE_MASTERS))
-
-
-def generate_safe_haiku(inspiration,meaning_generator):
-    safe_pos_tags = [
-    [('VBG', 'DT', 'NN'), ('NNS',), ('JJ','NN', 'NNS')],
-    [('VBG', 'NN'), ('NN',), ('VBG','IN', 'DT', 'NN')],
-    ]
-    return haiku_from_pos_tags(random.choice(safe_pos_tags),inspiration,meaning_generator)
+    for meaning_generator in [wan, wnet]:
+        for inspiration in ['summer','winter','friend','city','love']:
+            print("---------------------")
+            print(generate_haiku(inspiration,meaning_generator))
+            print("--"+random.choice(JAPANESE_MASTERS))
 
 
 def haiku_from_pos_tags(pos_tags,inspiration,meaning_generator):
