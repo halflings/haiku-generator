@@ -90,7 +90,7 @@ FILLERS = {
     'WP': {'what'},
 }
 VOWELS = set('aeiou')
-NUM_HAIKUS = 100
+NUM_HAIKUS = 4000
 with open('haikus.json') as haikus_file:
     dataset = json.load(haikus_file)
 pos_counter = tokenize_dataset(dataset, haikus_limit=NUM_HAIKUS, fillers=FILLERS)
@@ -100,14 +100,14 @@ INSPIRATIONS = ['autumn','summer','winter','frog','love','moon','city']
 haikugen = HaikuGenerator()
 
 
-def generate_haiku(inspirations=INSPIRATIONS,meaning_generator=WAN()):
+def generate_haiku(inspiration,meaning_generator):
     popular_long_pos = Counter(dict((p, c) for (p, c) in pos_counter.most_common(15) if len(p) > 2))
     popular_short_pos = Counter(dict((p, c) for (p, c) in pos_counter.most_common(15) if len(p) < 3))
     pos_tags = [pick_random_structure(popular_long_pos),
                 pick_random_structure(popular_short_pos),
                 pick_random_structure(popular_long_pos)]
     print(pos_tags)
-    return haiku_from_pos_tags(pos_tags,random.choice(inspirations))
+    return haiku_from_pos_tags(pos_tags,inspiration,meaning_generator)
 
 
 def generate8haikus():
@@ -115,10 +115,10 @@ def generate8haikus():
     wnet = WordNetUtil()
     for inspiration in ['summer','winter','city','love']:
         print("---------------------")
-        print(generate_safe_haiku(inspiration,wan))
+        print(generate_haiku(inspiration,wan))
         print("--"+random.choice(JAPANESE_MASTERS))
         print("---------------------")
-        print(generate_safe_haiku(inspiration,wnet))
+        print(generate_haiku(inspiration,wnet))
         print("--"+random.choice(JAPANESE_MASTERS))
 
 
