@@ -114,7 +114,7 @@ def generate10haikus():
     wan = WAN()
     wnet = WordNetUtil()
     for meaning_generator in [wan, wnet]:
-        for inspiration in ['summer','winter','friend','city','love']:
+        for inspiration in ['food','darkness','cake','love','murder']:
             print("---------------------")
             print(generate_haiku(inspiration,meaning_generator))
             print("--"+random.choice(JAPANESE_MASTERS))
