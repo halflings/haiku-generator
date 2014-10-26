@@ -1,0 +1,87 @@
+/* Some changes to bootstrap's styles */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit;
+}
+
+h1, h2, h3 {
+  margin-top: 10px;
+}
+
+.panel-body {
+  padding: 2px 10px 10px;
+}
+
+body {
+  position: relative;
+}
+
+a:hover, a:active, a:focus {
+    outline: 0;
+    text-decoration: none !important;
+}
+
+.row {
+  margin: 0px 0px 0px -15px;
+}
+
+
+
+/* Header */
+.header {
+  width: 100%;
+  padding: 10px;
+
+  background: #4e5d6d;
+  color: #FFF;
+  text-shadow: -1px 1px 0px rgba(0, 0, 0, 0.5);
+}
+
+.header a {
+  color: inherit;
+}
+
+.header a:hover {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+}
+
+.header .sitename {
+  font-size: 26px;
+  margin: 4px 0 -3px 8px;
+  display: inline-block;
+}
+
+.header .sitename .icon {
+  font-size: 20px;
+}
+
+.right-link {
+  display: inline-block;
+  float: right;
+  margin: 3px 3px;
+}
+
+.nav-box {
+  font-size: 14px;
+  margin: -2px 5px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 8px 11px;
+  border-radius: 4px;
+}
+
+.nav-box .glyphicon {
+  top: 1px;
+  font-size: 12px;
+}
+
+.nav-box:hover .glyphicon {
+  color: #5277ff;
+}
+
+
+#error-bar {
+  margin-top: 10px;
+  /* Hidden by default*/
+  display: none;
+}

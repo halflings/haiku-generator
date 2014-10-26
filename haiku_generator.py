@@ -1,7 +1,7 @@
 import json
 import nltk
 import random
-import heuristic
+#import heuristic
 from collections import Counter
 from wan import WAN
 from bigrams import Bigrams
@@ -76,8 +76,8 @@ if __name__ == '__main__':
     generator = HaikuGenerator()
     #print generator.generate_bigrams(True)
     #print generator.generate_grammar_tree()
-    for x in xrange(1,10):
-        heuristic.ghaiku(generator._grammar_tree, WAN())
+ #   for x in xrange(1,10):
+#        heuristic.ghaiku(generator._grammar_tree, WAN())
     # print generator.generate_tagged_word('NN')
 
     # print generator.generate_tagged_bigram('lake', 'DT', successor=True)
