@@ -1,13 +1,6 @@
 import nltk
 import random
-from heapq import nlargest
 from nltk.corpus import wordnet as wn
-from nltk.corpus import wordnet_ic
-from nltk.tag.hunpos import HunposTagger
-
-
-
-tagger = HunposTagger('en_wsj.model')
 
 class WordNetUtil:
     #brown_ic = wordnet_ic.ic('ic-brown.dat')
@@ -17,20 +10,20 @@ class WordNetUtil:
     def random_word(self,posTag='NNmai'):
         return random.choice([s.name().split('.')[0] for s in  self.__wordnetlist if self.__has_POS_tag(s,posTag)])
 
-    
+
     def associate(self,seed,posTag):
         """
-        Returns one random word associated with the seed word 
+        Returns one random word associated with the seed word
         and whose POS tag matches posTag
         """
         return random.choice([x for (x,_) in WordNetUtil.get_related_word_list(seed,posTag)])
-        
+
     def __has_POS_tag(self,synset, POStag):
         # let's be more strict and only use first definition
         return synset.pos() == self.__POSmap[POStag]
         #return len([synset for synset in wn.synsets(word) if synset.pos() == self._POSmap[POStag]]) > 0
-    
-    
+
+
     @staticmethod
     def get_related_word_list(word, posTag='ALL'):
         """
@@ -45,12 +38,12 @@ class WordNetUtil:
             result_list.extend(WordNetUtil.__processString(ss.definition()));
             for ex in ss.examples():
                 result_list.extend(WordNetUtil.__processString(ex));
-            
+
             for h in ss.hypernyms():
                 hyper = h.name().partition('.')[0].replace("_", " ");
                 result_list.extend(nltk.pos_tag([hyper]));
                 result_list.extend(WordNetUtil.__processString(h.definition()));
-            
+
             for h in ss.hyponyms():
                 hypo = h.name().partition('.')[0].replace("_", " ");
                 result_list.extend(nltk.pos_tag([hypo]));
@@ -69,9 +62,9 @@ class WordNetUtil:
                 continue;
             if w not in seen:
                 seen.add(w);
-                resSet.add((w, item[1]));       
+                resSet.add((w, item[1]))
 
-        
+
         #prelimList = list(resSet);
         #inWordSS = wn.synsets(word)[0];
         #result_list = [];
@@ -81,7 +74,7 @@ class WordNetUtil:
             #result_list.extend((w[0], w[1], simScore));
 
         result_list = list(resSet);
-        
+
         if(posTag == 'ALL'):
             return result_list;
 
@@ -94,6 +87,5 @@ class WordNetUtil:
     @staticmethod
     def __processString(str_):
         tokens = nltk.word_tokenize(str_);
-        #tagged = nltk.pos_tag(tokens);
-        tagged = tagger.tag(tokens)
+        tagged = nltk.pos_tag(tokens)
         return tagged;
