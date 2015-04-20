@@ -1,8 +1,0 @@
-ideas
-remove prepositions
-use distributions to get prepositions
-fix grammar structure
-nltk for prepositions
-focus on few/short grammar structs
-dont reapeat words
-nltk.morphy to clean words
