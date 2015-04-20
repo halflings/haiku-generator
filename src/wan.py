@@ -1,11 +1,6 @@
 import csv
 import random
 import nltk
-from nltk.corpus import wordnet as wn # used for pos-tagging only
-from nltk.tag.hunpos import HunposTagger
-
-
-tagger = HunposTagger('en_wsj.model')
 
 class WAN:
 
@@ -28,16 +23,15 @@ class WAN:
 	def random_word(self,POStag='NN'):
 		while True:
 			word = self._assoc.keys()[int(random.random()*len(self._assoc.keys()))]
-			#print(nltk.pos_tag([word])[0][1],POStag)
 			if self.__has_POS_tag(word,POStag):
-			 	return word	
+			 	return word
 			# if self.__has_POS_tag(word,POStag):
 			#  	return word
 
-	
+
 	def __has_POS_tag(self,word, POStag):
 		# let's be more strict and only use first definition
-		return tagger.tag([word])[0][1] == POStag
+		return nltk.pos_tag([word])[0][1] == POStag
 		#return len(wn.synsets(word)) > 0 and wn.synsets(word)[0].pos() == self._POSmap[POStag]
 		#return len([synset for synset in wn.synsets(word) if synset.pos() == self._POSmap[POStag]]) > 0
 
